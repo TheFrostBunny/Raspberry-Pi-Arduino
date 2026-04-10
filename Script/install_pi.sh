@@ -103,9 +103,9 @@ for package in "${PYTHON_PACKAGES[@]}"; do
 done
 
 # 5. Installer requirements.txt hvis den finnes
-if [ -f "requirements.txt" ]; then
+if [ -f "./Python/requirements.txt" ]; then
     print_status "Fant requirements.txt, installerer fra den..."
-    if pip3 install -r requirements.txt; then
+    if pip3 install -r Python/requirements.txt; then
         print_success "Alle requirements fra requirements.txt installert"
     else
         print_warning "Noen requirements kunne ikke installeres"
