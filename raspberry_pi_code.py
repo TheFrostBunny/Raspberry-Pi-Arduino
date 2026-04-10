@@ -51,6 +51,10 @@ HTML_TEMPLATE = """
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 15px; margin: 30px 0;
         }
+        .blink-group {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin: 20px 0;
+        }
         button {
             background: linear-gradient(45deg, #007bff, #0056b3);
             color: white; border: none; padding: 18px;
@@ -66,6 +70,9 @@ HTML_TEMPLATE = """
         .btn-on { background: linear-gradient(45deg, #28a745, #20c997); }
         .btn-off { background: linear-gradient(45deg, #dc3545, #c82333); }
         .btn-blink { background: linear-gradient(45deg, #ffc107, #e0a800); }
+        .btn-blink-fast { background: linear-gradient(45deg, #ff6b35, #f7931e); }
+        .btn-blink-slow { background: linear-gradient(45deg, #17a2b8, #138496); }
+        .btn-blink-sos { background: linear-gradient(45deg, #dc3545, #c82333); }
         .btn-photo {
             grid-column: 1 / -1;
             background: linear-gradient(45deg, #6f42c1, #e83e8c);
@@ -111,7 +118,17 @@ HTML_TEMPLATE = """
             <div class="button-group">
                 <button class="btn-on" name="action" value="on">💡 LED På</button>
                 <button class="btn-off" name="action" value="off">⚫ LED Av</button>
-                <button class="btn-blink" name="action" value="blink">⚡ Blink LED</button>
+            </div>
+            
+            <h3 style="text-align: center; color: #666; margin: 25px 0 15px 0;">⚡ Blink-alternativer</h3>
+            <div class="blink-group">
+                <button class="btn-blink" name="action" value="blink">⚡ Normal</button>
+                <button class="btn-blink-fast" name="action" value="blink_fast">⚡⚡ Rask</button>
+                <button class="btn-blink-slow" name="action" value="blink_slow">🐌 Langsom</button>
+                <button class="btn-blink-sos" name="action" value="blink_sos">🆘 SOS</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
                 <button class="btn-photo" name="action" value="photo">📸 Ta Bilde</button>
             </div>
         </form>
@@ -216,7 +233,16 @@ def index():
             status = "⚫ LED er nå slått AV"
         elif action == 'blink':
             send_arduino_command(action)
-            status = "⚡ LED blinker 3 ganger"
+            status = "⚡ LED blinker normalt (3x)"
+        elif action == 'blink_fast':
+            send_arduino_command(action)
+            status = "⚡⚡ LED blinker raskt (6x)"
+        elif action == 'blink_slow':
+            send_arduino_command(action)
+            status = "⚡ LED blinker sakte (3x)"
+        elif action == 'blink_sos':
+            send_arduino_command(action)
+            status = "🆘 LED blinker SOS-signal"
         elif action == 'photo':
             status = take_photo()
         else:
