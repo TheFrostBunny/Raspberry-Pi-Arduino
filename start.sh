@@ -89,8 +89,9 @@ else
     fi
 fi
 
-# Start Python-serveren
-echo "🚀 Starter Python-server..."
+# Start Web UI-serveren med core_logic
+echo "🚀 Starter Web UI-server..."
 echo "Trykk Ctrl+C for å stoppe serveren"
 echo ""
-python3 raspberry_pi_code.py
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/Python"
+python3 Python/Web/web_ui.py
