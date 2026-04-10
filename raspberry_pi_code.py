@@ -377,20 +377,26 @@ def init_camera():
 def generate_frames():
     """Generator som produserer video-frames for streaming."""
     global camera
+    # Last inn Haar-cascade for ansiktsgjenkjenning (kun én gang)
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     while True:
         if camera_active and camera is not None:
             with camera_lock:
                 success, frame = camera.read()
                 if success:
+                    # Ansiktsgjenkjenning
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+                    for (x, y, w, h) in faces:
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                        cv2.putText(frame, 'Ansikt', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
                     # Legg til overlays
                     cv2.putText(frame, f"LED: {'ON' if led_status else 'OFF'}", 
                                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                                (0, 255, 0) if led_status else (0, 0, 255), 2)
-                    
                     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
                     cv2.putText(frame, timestamp, (10, frame.shape[0]-10), 
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-                    
                     # Encoder til JPEG
                     ret, buffer = cv2.imencode('.jpg', frame)
                     if ret:
@@ -405,7 +411,6 @@ def generate_frames():
                 frame_bytes = buffer.tobytes()
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-        
         time.sleep(0.03)  # ~30 FPS
 
 def create_no_camera_frame():

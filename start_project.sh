@@ -42,5 +42,19 @@ echo "🚀 Starter Python-server..."
 echo "Trykk Ctrl+C for å stoppe serveren"
 echo ""
 
+# Installer nødvendige Python-pakker (OpenCV, Flask, numpy)
+echo "🔄 Sjekker og installerer nødvendige Python-pakker..."
+pip3 install --upgrade pip > /dev/null 2>&1
+pip3 install opencv-python flask numpy > /dev/null 2>&1
+
+# Sjekk at Haar-cascade-filen finnes (OpenCV laster den vanligvis automatisk, men vi kan gi beskjed)
+CASCADE_PATH="$(python3 -c 'import cv2; print(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")')"
+if [ ! -f "$CASCADE_PATH" ]; then
+    echo -e "${YELLOW}⚠️ Haar-cascade for ansiktsgjenkjenning mangler!${NC}"
+    echo "Last ned fra: https://github.com/opencv/opencv/tree/master/data/haarcascades"
+else
+    echo -e "${GREEN}✅ Haar-cascade for ansiktsgjenkjenning funnet${NC}"
+fi
+
 # Start Python-serveren
 python3 raspberry_pi_code.py
