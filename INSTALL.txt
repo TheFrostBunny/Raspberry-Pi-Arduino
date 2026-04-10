@@ -1,0 +1,108 @@
+# 🔧 Raspberry Pi Arduino Kontrollpanel - Installasjonsinstruksjoner
+
+## 📋 Systemkrav
+- Raspberry Pi (3, 4 eller nyere)
+- Arduino (Uno, Nano eller kompatibel)
+- USB-webcam ELLER Raspberry Pi Camera Module
+- LED + 220Ω motstand
+- Koblingsledninger
+
+## 🔌 Maskinvare-oppsett
+
+### Arduino-tilkoblinger:
+- LED kort ben → 220Ω motstand → Arduino GND
+- LED langt ben → Arduino Pin 8
+- Arduino → Raspberry Pi via USB-kabel
+
+### Kamera:
+- USB-webcam plugget i Raspberry Pi USB-port
+- ELLER Raspberry Pi Camera Module i kamera-porten
+
+## 💾 Programvare-installasjon
+
+### 1. Oppdater systemet:
+```bash
+sudo apt update
+sudo apt upgrade -y
+```
+
+### 2. Installer Python-biblioteker:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Installer system-pakker:
+```bash
+# For Raspberry Pi kamera (backup)
+sudo apt install python3-picamera2 -y
+
+# For USB webcam (hvis ikke allerede installert)
+sudo apt install v4l-utils -y
+```
+
+### 4. Aktiver kamera (hvis du bruker Pi Camera):
+```bash
+sudo raspi-config
+```
+→ Interface Options → Camera → Enable → Yes → Reboot
+
+## 🚀 Kjøring
+
+### 1. Last opp Arduino-koden:
+- Åpne `arduino_code.ino` i Arduino IDE
+- Koble Arduino til PC
+- Velg riktig port og brett
+- Last opp koden
+
+### 2. Koble Arduino til Raspberry Pi og kjør Python-koden:
+```bash
+python raspberry_pi_code.py
+```
+
+### 3. Åpne web-grensesnittet:
+- Noter IP-adressen som vises i terminalen
+- Åpne i nettleser: http://192.168.x.x:5000
+
+## 🧪 Testing
+
+### Test USB-webcam:
+```bash
+ls /dev/video*
+# Skal vise /dev/video0 eller lignende
+```
+
+### Test Arduino-tilkobling:
+```bash
+ls /dev/tty*
+# Skal vise /dev/ttyACM0 eller /dev/ttyUSB0
+```
+
+## 🔍 Feilsøking
+
+**Webcam fungerer ikke:**
+- Prøv en annen USB-port
+- Sjekk at webcam er kompatibel med Linux
+- Kjør: `lsusb` for å se om den blir oppdaget
+
+**Arduino ikke funnet:**
+- Sjekk USB-kabelen
+- Prøv en annen USB-port på Pi-en
+- Restart både Arduino og Pi
+
+**Web-side ikke tilgjengelig:**
+- Sjekk at begge enheter er på samme WiFi-nettverk
+- Prøv å åpne 127.0.0.1:5000 direkte på Pi-en
+
+## 📂 Prosjektfiler
+- `arduino_code.ino` - Arduino-programmet
+- `raspberry_pi_code.py` - Python web-server
+- `requirements.txt` - Python-biblioteker
+- `INSTALL.txt` - Denne filen
+- `photo_*.jpg` - Lagrede bilder
+
+## 🎯 Funksjoner
+- LED På/Av
+- 4 forskjellige blink-mønstre (Normal, Rask, Langsom, SOS)
+- Ta bilder med automatisk lys
+- Vis siste bilde i web-grensesnittet
+- Responsivt design for mobil og desktop

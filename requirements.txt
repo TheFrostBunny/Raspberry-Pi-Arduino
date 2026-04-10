@@ -1,0 +1,22 @@
+# Python Requirements for Raspberry Pi Arduino Control Project
+# Install with: pip install -r requirements.txt
+
+# Web Framework
+Flask>=2.0.0
+
+# Arduino Serial Communication
+pyserial>=3.5
+
+# USB Webcam Support (Primary camera method) 
+opencv-python>=4.5.0
+
+# Numerical operations for image processing
+numpy>=1.21.0
+
+# Raspberry Pi Camera Support (Backup method)
+# Install with: sudo apt install python3-picamera2
+# picamera2
+
+# Additional system packages (install with apt)
+# sudo apt update
+# sudo apt install python3-picamera2
