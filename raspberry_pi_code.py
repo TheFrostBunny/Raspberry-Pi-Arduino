@@ -189,19 +189,52 @@ def take_photo():
         time.sleep(0.5)
         send_arduino_command("off") # Slå alltid av lyset etterpå
 
+# Global variabel for å holde styr på LED-status
+led_status = False
+
+def get_latest_photo():
+    """Finner det siste bildet som ble tatt."""
+    photo_files = glob.glob("photo_*.jpg")
+    if photo_files:
+        return max(photo_files, key=os.path.getctime)
+    return None
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    status = "Klar"
+    global led_status
+    status = "🟢 Klar for kommandoer"
+    
     if request.method == 'POST':
         action = request.form.get('action')
-        if action in ['on', 'off', 'blink']:
+        if action == 'on':
             send_arduino_command(action)
-            status = f"Kommando '{action}' sendt."
+            led_status = True
+            status = "💡 LED er nå slått PÅ"
+        elif action == 'off':
+            send_arduino_command(action)
+            led_status = False
+            status = "⚫ LED er nå slått AV"
+        elif action == 'blink':
+            send_arduino_command(action)
+            status = "⚡ LED blinker 3 ganger"
         elif action == 'photo':
             status = take_photo()
         else:
-            status = "Ukjent kommando."
-    return render_template_string(HTML_TEMPLATE, status=status)
+            status = "❌ Ukjent kommando"
+    
+    latest_photo = get_latest_photo()
+    if latest_photo:
+        latest_photo = os.path.basename(latest_photo)
+    
+    return render_template_string(HTML_TEMPLATE, 
+                                  status=status, 
+                                  led_on=led_status,
+                                  latest_photo=latest_photo)
+
+@app.route('/photo/<filename>')
+def serve_photo(filename):
+    """Serverer bilder til web-grensesnittet."""
+    return send_file(filename)
 
 def get_ip_address():
     """Finner den lokale IP-adressen til maskinen."""
