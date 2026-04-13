@@ -48,9 +48,9 @@ else
         echo -e "${YELLOW}⚠️ Ingen video-enheter funnet.${NC}"
     fi
 
-    if [ ! -f "raspberry_pi_code.py" ]; then
-        echo -e "${RED}❌ raspberry_pi_code.py ikke funnet i denne mappen!${NC}"
-        echo "Sørg for at du kjører skriptet fra riktig mappe."
+    if [ ! -f "Python/core_logic.py" ]; then
+        echo -e "${RED}❌ Python/core_logic.py ikke funnet!${NC}"
+        echo "Sørg for at du har riktig mappestruktur: Python/core_logic.py må finnes."
         exit 1
     fi
 
