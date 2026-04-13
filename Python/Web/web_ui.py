@@ -12,7 +12,6 @@ from Python.core_logic import (
 
 app = Flask(__name__)
 
-# --- HTML og CSS for web-grensesnittet ---
 HTML_TEMPLATE = """
 ...existing code...
 """
@@ -63,9 +62,7 @@ def index():
 def serve_photo(filename):
     return send_file(filename)
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/status')
 def status():
