@@ -1,11 +1,9 @@
-// --- Konfigurasjon ---
 const int ledPin = 8;
 
 void setup() {
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   
-  // Gi Arduino tid til å starte opp
   delay(1000);
   Serial.println("Arduino is ready.");
 }
@@ -50,7 +48,7 @@ void loop() {
       Serial.println("Slow blink complete");
     } else if (command == "blink_sos") {
       Serial.println("LED blinking SOS");
-      // S: 3 korte
+
       for (int i = 0; i < 3; i++) {
         digitalWrite(ledPin, HIGH);
         delay(150);
@@ -58,7 +56,7 @@ void loop() {
         delay(150);
       }
       delay(300);
-      // O: 3 lange
+ 
       for (int i = 0; i < 3; i++) {
         digitalWrite(ledPin, HIGH);
         delay(500);
@@ -66,7 +64,7 @@ void loop() {
         delay(500);
       }
       delay(300);
-      // S: 3 korte
+
       for (int i = 0; i < 3; i++) {
         digitalWrite(ledPin, HIGH);
         delay(150);
@@ -78,7 +76,6 @@ void loop() {
       Serial.println("Unknown command");
     }
     
-    // Send en bekreftelse tilbake til Pi-en
     Serial.println("ok");
   }
 }

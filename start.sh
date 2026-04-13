@@ -9,7 +9,6 @@ NC='\033[0m'
 
 echo ""
 
-# Sjekk om vi er på Raspberry Pi (bruker /proc/cpuinfo)
 if grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null; then
     echo -e "${GREEN}Raspberry Pi oppdaget! Kjører installasjonsskript...${NC}"
     if [ -f "Script/install_pi.sh" ]; then
@@ -39,7 +38,6 @@ else
         echo -e "${YELLOW}⚠️ Ingen Arduino funnet. Sjekk USB-tilkobling.${NC}"
     fi
 
-    # Sjekk webcam
     echo "📹 Sjekker webcam..."
     if ls /dev/video* 2>/dev/null > /dev/null; then
         VIDEO_DEVICES=$(ls /dev/video* | tr '\n' ' ')
@@ -89,7 +87,6 @@ else
     fi
 fi
 
-# Start Web UI-serveren med core_logic
 echo "🚀 Starter Web UI-server..."
 echo "Trykk Ctrl+C for å stoppe serveren"
 echo ""

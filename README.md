@@ -54,7 +54,3 @@ Script/
    ```bash
    bash Script/install_pi.sh
    ```
-
-## Kontakt
-
-For spørsmål, kontakt prosjektansvarlig.
