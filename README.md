@@ -1,56 +1,51 @@
-# Prosjekt: Raspberry Pi med Arduino
+# Project: Raspberry Pi with Arduino  
 
+This project includes code for both Arduino and Python, along with a web interface and an installation script for Raspberry Pi.
 
-Dette prosjektet består av kode for både Arduino og Python, inkludert et webgrensesnitt og installasjonsskript for Raspberry Pi.
-
-## Prosjektstruktur
+## Project Structure  
 
 ```
-start.sh
-Arduino/
-    arduino_code.ino
-Python/
-    core_logic.py
-    requirements.txt
-    Web/
-        web_ui.py
-Script/
-    install_pi.sh
+start.sh  
+Arduino/  
+    arduino_code.ino  
+Python/  
+    core_logic.py  
+    requirements.txt  
+    Web/  
+        web_ui.py  
+Script/  
+    install_pi.sh  
 ```
 
-### Beskrivelse av mapper og filer
+## Description of Folders and Files  
 
-- **start.sh**: Oppstartsskript for prosjektet.
-- **Arduino/**: Inneholder Arduino-kode (`arduino_code.ino`).
-- **Python/**: Python-kode for prosjektets logikk.
-    - `core_logic.py`: Kjernelogikk i Python.
-    - `requirements.txt`: Avhengigheter for Python-koden.
-    - **Web/**: Webgrensesnitt skrevet i Python (`web_ui.py`).
-- **Script/**: Installasjonsskript for Raspberry Pi (`install_pi.sh`).
+- **start.sh**: Startup script for the project.  
+- **Arduino/**: Contains Arduino code (`arduino_code.ino`).  
+- **Python/**: Python code for the project logic.  
+  - `core_logic.py`: Core logic written in Python.  
+  - `requirements.txt`: Dependencies required for the Python code.  
+  - **Web/**: Web interface written in Python (`web_ui.py`).  
+- **Script/**: Installation script for Raspberry Pi (`install_pi.sh`).  
 
-## Kom i gang
+## Getting Started  
 
-1. **Installer avhengigheter**
-   
-   Gå til `Python/`-mappen og installer nødvendige Python-pakker:
+1. **Install dependencies**  
+   Navigate to the `Python/` folder and install the required Python packages:  
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Kjør webgrensesnittet**
-   
-   Fra `Python/Web/`-mappen:
+2. **Run the web interface**  
+   From the `Python/Web/` folder:  
    ```bash
    python web_ui.py
    ```
 
-3. **Kjør Arduino-koden**
-   
-   Åpne `Arduino/arduino_code.ino` i Arduino IDE og last opp til din Arduino-enhet.
+3. **Upload the Arduino code**  
+   Open `Arduino/arduino_code.ino` in the Arduino IDE and upload it to your Arduino device.  
 
-4. **Installer på Raspberry Pi**
-   
-   Kjør installasjonsskriptet:
+4. **Install on Raspberry Pi**  
+   Run the installation script:  
    ```bash
    bash Script/install_pi.sh
    ```
