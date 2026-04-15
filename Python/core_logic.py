@@ -53,19 +53,29 @@ def send_arduino_command(command):
         return "Arduino disabled by config"
     global arduino_serial
     with serial_lock:
-        if arduino_serial and arduino_serial.is_open:
-            try:
-                print(f"Sender kommando: {command}")
-                arduino_serial.write(command.encode('utf-8'))
-                response = arduino_serial.readline().decode('utf-8').strip()
-                print(f"Arduino svarte: {response}")
-                return response
-            except serial.SerialException as e:
-                print(f"Feil ved seriekommunikasjon: {e}")
-                return "Serial Error"
-        else:
-            print("Serieport er ikke åpen.")
-            return "Not Connected"
+        # Åpne porten automatisk hvis ikke åpen
+        if not (arduino_serial and arduino_serial.is_open):
+            port = find_arduino_port()
+            if port:
+                try:
+                    arduino_serial = serial.Serial(port, 9600, timeout=2)
+                    time.sleep(2)  # Gi Arduino tid til å resette
+                    print(f"Koblet til Arduino på {port}")
+                except Exception as e:
+                    print(f"Kunne ikke åpne Arduino-port: {e}")
+                    return "Serial Not Available"
+            else:
+                print("Fant ingen Arduino-port.")
+                return "Not Connected"
+        try:
+            print(f"Sender kommando: {command}")
+            arduino_serial.write(command.encode('utf-8'))
+            response = arduino_serial.readline().decode('utf-8').strip()
+            print(f"Arduino svarte: {response}")
+            return response
+        except serial.SerialException as e:
+            print(f"Feil ved seriekommunikasjon: {e}")
+            return "Serial Error"
 
 def take_photo():
     print("Starter bilde-sekvens...")
