@@ -1,3 +1,18 @@
+# Python virtual environment
+.venv/
+
+# Node/React
+frontend/node_modules/
+frontend/build/
+
+# OS-filer
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Installerte pakker og miljøfiler skal ikke med i git
 # Byte-compiled / optimized / DLL files
 Python/__pycache__/
 Python/_pycache__/
