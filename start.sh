@@ -3,6 +3,8 @@ if [ -d "frontend" ]; then
     echo "🚀 Installerer npm-avhengigheter for React frontend..."
     cd frontend
     npm install
+    echo "🔨 Bygger React-app for produksjon..."
+    npm run build
     echo "🚀 Starter React frontend... (Ctrl+C for å stoppe)"
     npm start
     cd ..
