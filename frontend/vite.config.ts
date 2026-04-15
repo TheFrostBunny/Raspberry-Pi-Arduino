@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/video_feed": "http://localhost:5000",
+      "/status": "http://localhost:5000",
+      "/photo": "http://localhost:5000",
+      "/ar_photos": "http://localhost:5000",
+      // legg til flere ruter om nødvendig
+    },
     hmr: {
       overlay: false,
     },
