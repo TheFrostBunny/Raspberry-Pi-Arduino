@@ -1,14 +1,18 @@
 #!/bin/bash
 # Installerer og setter opp React-app for frontend
 
-# Sjekk om Node.js og npm er installert
-if ! command -v node > /dev/null 2>&1; then
-    echo "❌ Node.js er ikke installert! Installer Node.js først."
-    exit 1
-fi
-if ! command -v npm > /dev/null 2>&1; then
-    echo "❌ npm er ikke installert! Installer npm først."
-    exit 1
+
+# Sjekk og installer Node.js og npm på Raspberry Pi hvis nødvendig
+if ! command -v node > /dev/null 2>&1 || ! command -v npm > /dev/null 2>&1; then
+    echo "🔄 Node.js og/eller npm ikke funnet. Prøver å installere..."
+    # Sjekk om vi er på Raspberry Pi
+    if grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null; then
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    else
+        echo "❌ Node.js og npm må installeres manuelt på dette systemet."
+        exit 1
+    fi
 fi
 
 # Opprett React-app hvis den ikke finnes
