@@ -1,0 +1,8 @@
+# Byte-compiled / optimized / DLL files
+Python/__pycache__/
+Python/_pycache__/
+Python/Web/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/

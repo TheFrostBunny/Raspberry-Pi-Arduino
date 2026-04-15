@@ -13,6 +13,9 @@ opencv-python>=4.5.0
 # Numerical operations for image processing
 numpy>=1.21.0
 
+# Image processing enhancements for AR effects
+Pillow>=8.0.0
+
 # Raspberry Pi Camera Support (Backup method)
 # Install with: sudo apt install python3-picamera2
 # picamera2

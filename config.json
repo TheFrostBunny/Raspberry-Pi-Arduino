@@ -1,0 +1,8 @@
+{
+  "enable_arduino": true,
+  "enable_web": true,
+  "enable_ar": true,
+  "enable_filters": true,
+  "enable_face_detection": true,
+  "enable_led_on_photo": true
+}
