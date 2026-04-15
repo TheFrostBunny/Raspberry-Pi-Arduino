@@ -1,3 +1,9 @@
+# Start Flask-backend (web_ui.py) på port 5000
+echo "🚀 Starter Flask-backend (web_ui.py) på port 5000..."
+source .venv/bin/activate
+nohup python3 Python/Web/web_ui.py > flask_backend.log 2>&1 &
+BACKEND_PID=$!
+echo "Flask-backend kjører med PID $BACKEND_PID (logg: flask_backend.log)"
 # Start Python backend (core_logic)
 echo "🚀 Starter Python backend (core_logic.py)..."
 source .venv/bin/activate
