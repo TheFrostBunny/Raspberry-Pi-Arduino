@@ -352,10 +352,35 @@ HTML_TEMPLATE = """
         {% endif %}
 
         <!-- Live Camera Stream -->
+
         <div class="section">
             <h3>📹 Live Kamera Stream</h3>
+            <form id="ar-live-form" method="get" action="/">
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="live_filter">🎨 Live bildefilter:</label>
+                        <select name="live_filter" id="live_filter">
+                            <option value="none">Ingen filter</option>
+                            <option value="grayscale">📷 Gråskala</option>
+                            <option value="blur">🌫️ Uskarphet</option>
+                            <option value="sepia">🏜️ Sepia</option>
+                            <option value="vintage">📸 Vintage</option>
+                            <option value="cool">❄️ Kjølig tone</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="live_ar_face_effect">👤 Live AR-effekt:</label>
+                        <select name="live_ar_face_effect" id="live_ar_face_effect">
+                            <option value="none">Ingen AR</option>
+                            <option value="glasses">👓 Briller</option>
+                            <option value="hat">🎩 Hatt</option>
+                            <option value="mustache">🥸 Bart</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
             <div class="video-container">
-                <img id="camera-stream" src="/video_feed" alt="Live Camera Stream">
+                <img id="camera-stream" src="/video_feed?live_filter=none&live_ar_face_effect=none" alt="Live Camera Stream">
             </div>
         </div>
 
@@ -377,10 +402,21 @@ HTML_TEMPLATE = """
         document.getElementById('filter').addEventListener('change', function() {
             console.log('Filter changed:', this.value);
         });
-        
         document.getElementById('ar_face_effect').addEventListener('change', function() {
             console.log('AR effect changed:', this.value);
         });
+
+        // Live AR controls
+        const liveFilter = document.getElementById('live_filter');
+        const liveArFaceEffect = document.getElementById('live_ar_face_effect');
+        const liveImg = document.getElementById('camera-stream');
+        function updateLiveFeed() {
+            const filter = liveFilter.value;
+            const ar = liveArFaceEffect.value;
+            liveImg.src = `/video_feed?live_filter=${filter}&live_ar_face_effect=${ar}&_=${Date.now()}`;
+        }
+        liveFilter.addEventListener('change', updateLiveFeed);
+        liveArFaceEffect.addEventListener('change', updateLiveFeed);
 
         // Auto-refresh status every 30 seconds
         setInterval(function() {
@@ -523,10 +559,36 @@ def ar_photo_gallery():
     """
     return gallery_html
 
+
+# --- Sanntids AR video feed ---
+from Python.core_logic import apply_filter, detect_faces_for_ar, add_ar_elements_to_faces
+
+def generate_frames_live(live_filter='none', live_ar_face_effect='none'):
+    global camera, camera_active, camera_lock
+    while True:
+        if camera_active and camera is not None:
+            with camera_lock:
+                success, frame = camera.read()
+                if not success:
+                    continue
+                # AR filter
+                if live_filter != 'none':
+                    frame = apply_filter(frame, live_filter)
+                if live_ar_face_effect != 'none':
+                    faces = detect_faces_for_ar(frame)
+                    frame = add_ar_elements_to_faces(frame, faces, live_ar_face_effect)
+                ret, buffer = cv2.imencode('.jpg', frame)
+                if not ret:
+                    continue
+                frame_bytes = buffer.tobytes()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
 @app.route('/video_feed')
 def video_feed():
-    """Route for live camera stream"""
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    live_filter = request.args.get('live_filter', 'none')
+    live_ar_face_effect = request.args.get('live_ar_face_effect', 'none')
+    return Response(generate_frames_live(live_filter, live_ar_face_effect), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 

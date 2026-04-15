@@ -1,3 +1,29 @@
+# Start React frontend
+if [ -d "frontend" ]; then
+    echo "🚀 Installerer npm-avhengigheter for React frontend..."
+    cd frontend
+    npm install
+    echo "🚀 Starter React frontend... (Ctrl+C for å stoppe)"
+    npm start
+    cd ..
+else
+    echo "❌ React frontend ikke funnet. Kjør start.sh på nytt for å opprette den."
+fi
+# Sjekk og sett opp React-app hvis ønsket
+if [ ! -d "frontend" ]; then
+    echo "🟢 Oppretter React-app i ./frontend ..."
+    if command -v npx > /dev/null 2>&1 && command -v npm > /dev/null 2>&1; then
+        npx create-react-app frontend
+        cd frontend
+        npm install axios
+        cd ..
+        echo "🚀 React-app er klar! Kjør 'cd frontend && npm start' for å starte utviklingsserveren."
+    else
+        echo "❌ Node.js og/eller npm mangler. Installer Node.js og npm for å bruke React frontend."
+    fi
+else
+    echo "✅ React-app finnes allerede i ./frontend"
+fi
 
 echo "🔧 Raspberry Pi Arduino"
 echo "====================================="
@@ -102,9 +128,5 @@ else
     echo -e "${GREEN}✅ Port 5000 er ledig${NC}"
 fi
 
-echo "🚀 Starter Web UI-server..."
-echo "Trykk Ctrl+C for å stoppe serveren"
-echo ""
-export PYTHONPATH="${PYTHONPATH}:$(pwd)/Python"
-python Python/Web/web_ui.py
-deactivate
+
+# Web UI-server (Python) startes ikke automatisk lenger. Bruk kun React frontend.
