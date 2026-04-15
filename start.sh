@@ -72,22 +72,17 @@ else
 fi
 
 
-# Installer nødvendige pakker i venv hvis ikke installert
-REQUIRED_PKGS="opencv-python flask numpy pyserial"
-for pkg in $REQUIRED_PKGS; do
-    # pyserial importeres som 'serial'
-    if [ "$pkg" = "pyserial" ]; then
-        python -c "import serial" 2>/dev/null
-    else
-        python -c "import $pkg" 2>/dev/null
-    fi
-    if [ $? -ne 0 ]; then
-        echo -e "${YELLOW}Installerer $pkg i .venv...${NC}"
-        pip install $pkg
-    else
-        echo -e "${GREEN}$pkg er allerede installert i .venv${NC}"
-    fi
-done
+
+# Installer nødvendige pakker fra requirements.txt (uten opencv-python/cv2)
+if [ -f "Python/requirements.txt" ]; then
+    # Lag en midlertidig requirements uten opencv-python
+    grep -ivE '^opencv-python' Python/requirements.txt > .venv/requirements_no_cv2.txt
+    echo -e "${YELLOW}Installerer Python-avhengigheter fra requirements.txt (uten opencv-python)...${NC}"
+    pip install -r .venv/requirements_no_cv2.txt
+    rm .venv/requirements_no_cv2.txt
+else
+    echo -e "${RED}Fant ikke Python/requirements.txt!${NC}"
+fi
 
 CASCADE_PATH="$(python -c 'import cv2; print(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")')"
 if [ ! -f "$CASCADE_PATH" ]; then
