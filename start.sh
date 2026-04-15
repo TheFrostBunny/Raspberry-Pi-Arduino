@@ -10,8 +10,10 @@ if [ -d "frontend" ]; then
     echo "🚀 Installerer npm-avhengigheter for React frontend..."
     cd frontend
     npm install
-    echo "🚀 Starter React frontend i utviklingsmodus... (Ctrl+C for å stoppe)"
-    npm start
+    echo "🔨 Bygger React-app for produksjon..."
+    npm run build
+    echo "🚀 Starter React frontend i produksjonsmodus (npm run preview)... (Ctrl+C for å stoppe)"
+    npm run preview
     cd ..
 else
     echo "❌ React frontend ikke funnet. Kjør start.sh på nytt for å opprette den."
