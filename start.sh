@@ -71,10 +71,16 @@ else
     echo ""
 fi
 
+
 # Installer nødvendige pakker i venv hvis ikke installert
-REQUIRED_PKGS="opencv-python flask numpy"
+REQUIRED_PKGS="opencv-python flask numpy pyserial"
 for pkg in $REQUIRED_PKGS; do
-    python -c "import $pkg" 2>/dev/null
+    # pyserial importeres som 'serial'
+    if [ "$pkg" = "pyserial" ]; then
+        python -c "import serial" 2>/dev/null
+    else
+        python -c "import $pkg" 2>/dev/null
+    fi
     if [ $? -ne 0 ]; then
         echo -e "${YELLOW}Installerer $pkg i .venv...${NC}"
         pip install $pkg
