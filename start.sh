@@ -1,3 +1,21 @@
+# Start Python backend (core_logic)
+echo "🚀 Starter Python backend (core_logic.py)..."
+source .venv/bin/activate
+nohup python3 Python/core_logic.py > backend.log 2>&1 &
+BACKEND_PID=$!
+echo "Python backend kjører med PID $BACKEND_PID (logg: backend.log)"
+
+# Start React frontend
+if [ -d "frontend" ]; then
+    echo "🚀 Installerer npm-avhengigheter for React frontend..."
+    cd frontend
+    npm install
+    echo "🚀 Starter React frontend i utviklingsmodus... (Ctrl+C for å stoppe)"
+    npm start
+    cd ..
+else
+    echo "❌ React frontend ikke funnet. Kjør start.sh på nytt for å opprette den."
+fi
 # Start React frontend
 if [ -d "frontend" ]; then
     echo "🚀 Installerer npm-avhengigheter for React frontend..."
@@ -13,7 +31,7 @@ else
 fi
 # Sjekk og sett opp React-app hvis ønsket
 if [ ! -d "frontend" ]; then
-    echo "🟢 Oppretter React-app i ./frontend ..."
+    echo "🟢 Oppretter React-app i ./frontend ..
     if command -v npx > /dev/null 2>&1 && command -v npm > /dev/null 2>&1; then
         npx create-react-app frontend
         cd frontend
