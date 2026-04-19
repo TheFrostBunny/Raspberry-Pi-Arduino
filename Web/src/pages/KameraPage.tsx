@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Video, ArrowLeft, Sparkles, Palette, User, Frame, Type, Clock, Lightbulb } from "lucide-react";
+import { Camera, Video, ArrowLeft, Sparkles, Palette, User, Frame, Type, Clock, Lightbulb, Download } from "lucide-react";
 import SectionCard from "@/components/SectionCard";
 import ControlButton from "@/components/ControlButton";
 import StatusBanner from "@/components/StatusBanner";
+import Lightbox from "@/components/Lightbox";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type Mode = "choose" | "live" | "photo";
 
@@ -32,7 +34,7 @@ const frames = [
 const selectClasses =
   "w-full rounded-lg border border-border bg-secondary px-3 py-2.5 font-mono text-sm text-secondary-foreground focus:outline-none focus:ring-2 focus:ring-accent";
 
-const API_BASE = "";
+import { postAction, fetchStatus, videoFeedUrl, photoUrl } from "@/lib/api";
 
 const KameraPage = () => {
   const [mode, setMode] = useState<Mode>("choose");
@@ -48,28 +50,23 @@ const KameraPage = () => {
 
   // Photos taken
   const [photos, setPhotos] = useState<string[]>([]);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   const takePhoto = async () => {
     try {
-      const formData = new FormData();
-      formData.append("action", "ar_photo");
-      formData.append("filter", filter);
-      formData.append("ar_face_effect", arFaceEffect);
-      formData.append("frame_style", frameStyle);
-      formData.append("custom_text", customText);
-      formData.append("show_timestamp", showTimestamp ? "on" : "");
-      formData.append("trigger_led", triggerLed ? "on" : "");
+      await postAction("ar_photo", {
+        filter,
+        ar_face_effect: arFaceEffect,
+        frame_style: frameStyle,
+        custom_text: customText,
+        show_timestamp: showTimestamp ? "on" : "",
+        trigger_led: triggerLed ? "on" : "",
+      });
 
-      const res = await fetch(`${API_BASE}/`, { method: "POST", body: formData });
-
-      // Get latest photo from status
-      const statusRes = await fetch(`${API_BASE}/status`);
-      if (statusRes.ok) {
-        const data = await statusRes.json();
-        if (data.latest_ar_photo) {
-          const filename = data.latest_ar_photo.split("/").pop();
-          setPhotos((prev) => [filename, ...prev]);
-        }
+      const data = await fetchStatus();
+      if (data?.latest_ar_photo) {
+        const filename = data.latest_ar_photo.split("/").pop();
+        if (filename) setPhotos((prev) => [filename, ...prev]);
       }
       setStatus({ message: "Bilde tatt med effekter!", type: "success" });
     } catch {
@@ -78,20 +75,22 @@ const KameraPage = () => {
   };
 
   return (
-    <div className="bg-grid min-h-screen">
+    <div className="bg-mesh min-h-screen">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        {/* Back button when not on choose */}
-        {mode !== "choose" && (
-          <motion.button
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            onClick={() => setMode("choose")}
-            className="mb-6 inline-flex items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Tilbake
-          </motion.button>
-        )}
+        <div className="mb-4 flex items-center justify-between">
+          {mode !== "choose" ? (
+            <motion.button
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              onClick={() => setMode("choose")}
+              className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Tilbake
+            </motion.button>
+          ) : <span />}
+          <ThemeToggle />
+        </div>
 
         <AnimatePresence mode="wait">
           {/* Choose mode */}
@@ -103,41 +102,41 @@ const KameraPage = () => {
               exit={{ opacity: 0, y: -20 }}
               className="flex flex-col items-center"
             >
-              <h1 className="text-gradient-primary mb-2 text-center text-3xl font-bold sm:text-4xl">
+              <h1 className="mb-2 text-center text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
                 Kamera
               </h1>
-              <p className="mb-10 text-center font-mono text-sm text-muted-foreground">
+              <p className="mb-10 text-center text-base text-muted-foreground">
                 Velg hva du vil gjøre
               </p>
 
               <div className="grid w-full max-w-lg gap-5 sm:grid-cols-2">
                 <motion.button
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setMode("live")}
-                  className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 transition-colors hover:border-info/40 hover:bg-info/5"
+                  className="group flex flex-col items-center gap-4 rounded-3xl border border-border bg-card p-8 shadow-soft transition-all hover:shadow-elevated"
                 >
-                  <div className="rounded-xl border border-info/20 bg-info/10 p-4 transition-colors group-hover:bg-info/20">
-                    <Video className="h-10 w-10 text-info" />
+                  <div className="rounded-2xl bg-info/10 p-4 transition-colors group-hover:bg-info/20">
+                    <Video className="h-9 w-9 text-info" />
                   </div>
-                  <div>
-                    <h2 className="font-mono text-lg font-semibold text-foreground">Live Stream</h2>
-                    <p className="mt-1 text-xs text-muted-foreground">Se live video fra kameraet</p>
+                  <div className="text-center">
+                    <h2 className="text-lg font-semibold tracking-tight text-foreground">Live Stream</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Se live video fra kameraet</p>
                   </div>
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setMode("photo")}
-                  className="group flex flex-col items-center gap-4 rounded-2xl border-2 border-border bg-card p-8 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  className="group flex flex-col items-center gap-4 rounded-3xl border border-border bg-card p-8 shadow-soft transition-all hover:shadow-elevated"
                 >
-                  <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 transition-colors group-hover:bg-primary/20">
-                    <Camera className="h-10 w-10 text-primary" />
+                  <div className="rounded-2xl bg-primary/10 p-4 transition-colors group-hover:bg-primary/20">
+                    <Camera className="h-9 w-9 text-primary" />
                   </div>
-                  <div>
-                    <h2 className="font-mono text-lg font-semibold text-foreground">Ta Bilde</h2>
-                    <p className="mt-1 text-xs text-muted-foreground">Ta bilde med AR-effekter</p>
+                  <div className="text-center">
+                    <h2 className="text-lg font-semibold tracking-tight text-foreground">Ta Bilde</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Ta bilde med AR-effekter</p>
                   </div>
                 </motion.button>
               </div>
@@ -164,7 +163,7 @@ const KameraPage = () => {
               <SectionCard title="Live Kamera Stream" icon={Video}>
                 <div className="overflow-hidden rounded-lg border border-border bg-muted">
                   <img
-                    src="/video_feed"
+                    src={videoFeedUrl()}
                     alt="Live kamera stream"
                     className="w-full"
                   />
@@ -256,15 +255,21 @@ const KameraPage = () => {
                 <SectionCard title={`Bilder tatt (${photos.length})`} icon={Camera}>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {photos.map((photo, i) => (
-                      <motion.div
+                      <motion.button
                         key={`${photo}-${i}`}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.96 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="overflow-hidden rounded-lg border border-border"
+                        onClick={() => setLightbox(photoUrl(photo))}
+                        className="group overflow-hidden rounded-2xl border border-border bg-card text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
                       >
-                        <img src={`/photo/${photo}`} alt={`Bilde ${i + 1}`} className="aspect-video w-full object-cover" />
-                        <p className="bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">{photo}</p>
-                      </motion.div>
+                        <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                          <img src={photoUrl(photo)} alt={`Bilde ${i + 1}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-foreground/80 px-2.5 py-1 text-xs font-medium text-background opacity-0 backdrop-blur transition-opacity group-hover:opacity-100">
+                            <Download className="h-3 w-3" /> Åpne
+                          </div>
+                        </div>
+                        <p className="truncate px-3 py-2 font-mono text-xs text-muted-foreground">{photo}</p>
+                      </motion.button>
                     ))}
                   </div>
                 </SectionCard>
@@ -273,6 +278,8 @@ const KameraPage = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <Lightbox src={lightbox} filename={lightbox?.split("/").pop()} onClose={() => setLightbox(null)} />
     </div>
   );
 };

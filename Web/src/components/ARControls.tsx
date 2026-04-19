@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Palette, User, Frame, Type, Clock, Lightbulb, Sparkles } from "lucide-react";
 import SectionCard from "./SectionCard";
 import ControlButton from "./ControlButton";
+import { photoUrl } from "@/lib/api";
 
 interface ARControlsProps {
   onTakeARPhoto: (params: ARPhotoParams) => void;
@@ -115,7 +116,7 @@ const ARControls = ({ onTakeARPhoto, latestARPhoto }: ARControlsProps) => {
       {latestARPhoto && (
         <SectionCard title="Siste AR Bilde" icon={Sparkles}>
           <div className="overflow-hidden rounded-lg border border-border">
-            <img src={`/photo/${latestARPhoto}`} alt="Siste AR bilde" className="w-full object-cover" />
+            <img src={photoUrl(latestARPhoto)} alt="Siste AR bilde" className="w-full object-cover" />
             <p className="bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">{latestARPhoto}</p>
           </div>
         </SectionCard>

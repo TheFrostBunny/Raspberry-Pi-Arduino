@@ -6,8 +6,9 @@ import StatusBanner from "@/components/StatusBanner";
 import LEDControl from "@/components/LEDControl";
 import CameraControl from "@/components/CameraControl";
 import ARControls, { ARPhotoParams } from "@/components/ARControls";
+import ThemeToggle from "@/components/ThemeToggle";
 
-const API_BASE = "";
+import { postAction, fetchStatus } from "@/lib/api";
 
 const Index = () => {
   const [status, setStatus] = useState<{ message: string; type: "success" | "error" | "info" }>({ message: "Klar for kommandoer", type: "info" });
@@ -20,24 +21,19 @@ const Index = () => {
   const sendCommand = async (action: string, body?: Record<string, string>) => {
     setCommandsSent((c) => c + 1);
     try {
-      const formData = new FormData();
-      formData.append("action", action);
-      if (body) Object.entries(body).forEach(([k, v]) => formData.append(k, v));
-
-      await fetch(`${API_BASE}/`, { method: "POST", body: formData });
+      await postAction(action, body);
 
       if (action === "on") { setLedOn(true); setStatus({ message: "LED er nå slått PÅ", type: "success" }); }
       else if (action === "off") { setLedOn(false); setStatus({ message: "LED er nå slått AV", type: "info" }); }
       else if (action === "photo") { setPhotosTaken((p) => p + 1); setStatus({ message: "Bilde tatt!", type: "success" }); }
       else setStatus({ message: `Kommando '${action}' sendt`, type: "success" });
 
-      const statusRes = await fetch(`${API_BASE}/status`);
-      if (statusRes.ok) {
-        const data = await statusRes.json();
+      const data = await fetchStatus();
+      if (data) {
         setPhotosTaken(data.photos_taken);
         setCommandsSent(data.commands_sent);
         setLedOn(data.led_status);
-        if (data.latest_ar_photo) setLatestARPhoto(data.latest_ar_photo.split("/").pop());
+        if (data.latest_ar_photo) setLatestARPhoto(data.latest_ar_photo.split("/").pop() ?? null);
       }
     } catch {
       setStatus({ message: "Kunne ikke koble til serveren", type: "error" });
@@ -58,8 +54,13 @@ const Index = () => {
   };
 
   return (
-    <div className="bg-grid min-h-screen">
+    <div className="bg-mesh min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Top bar with theme toggle */}
+        <div className="mb-4 flex justify-end">
+          <ThemeToggle />
+        </div>
+
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -30 }}
@@ -105,21 +106,21 @@ const Index = () => {
           <ARControls onTakeARPhoto={handleARPhoto} latestARPhoto={latestARPhoto} />
         </div>
 
-        {/* Gallery Link */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 text-center">
+        {/* Navigation */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 flex flex-wrap justify-center gap-3">
           <a
             href="/kamera"
-            className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-6 py-3 font-mono text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02]"
           >
             <Camera className="h-4 w-4" />
-            Åpne Kamera-side
+            Åpne Kamera
           </a>
           <a
-            href="/ar_photos"
-            className="ml-3 inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-6 py-3 font-mono text-sm font-semibold text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            href="/visning"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-card-foreground shadow-soft transition-colors hover:bg-secondary"
           >
             <Image className="h-4 w-4" />
-            Se alle AR bilder
+            Bildegalleri
           </a>
         </motion.div>
 
