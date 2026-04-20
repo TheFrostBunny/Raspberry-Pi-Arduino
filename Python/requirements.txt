@@ -7,8 +7,9 @@ Flask>=2.0.0
 # Arduino Serial Communication
 pyserial>=3.5
 
-# USB Webcam Support (Primary camera method) 
+# Computer Vision (OpenCV)
 opencv-python>=4.5.0
+opencv-contrib-python>=4.5.0
 
 # Numerical operations for image processing
 numpy>=1.21.0
@@ -20,6 +21,9 @@ Pillow>=8.0.0
 # Install with: sudo apt install python3-picamera2
 # picamera2
 
+# Optional: For better performance on Raspberry Pi
+# opencv-python-headless (use instead of opencv-python if no display)
+
 # Additional system packages (install with apt)
 # sudo apt update
-# sudo apt install python3-picamera2
+# sudo apt install python3-picamera2 libatlas-base-dev libjasper-dev libtiff5 libjasper-dev libharfftran0 libwebp6 libtiff5 libjasper-dev libharfftran0 libwebp6 libopenjp2-7 libtiff5
