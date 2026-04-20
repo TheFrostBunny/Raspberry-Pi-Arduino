@@ -30,6 +30,7 @@ if [ "$EUID" -ne 0 ]; then
   command -v sudo >/dev/null 2>&1 || error "Dette skriptet krever sudo eller root-tilgang."
 fi
 
+# 1. Systempakker
 if is_pi; then
   info "Raspberry Pi oppdaget — oppdaterer pakker og installerer nødvendige systempakker..."
   sudo apt update -y
@@ -48,12 +49,16 @@ if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
     command -v curl >/dev/null 2>&1 || sudo apt install -y curl
     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
     sudo apt-get install -y nodejs
-    success "Node.js installert"
+    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+      success "Node.js $(node -v) og npm $(npm -v) installert"
+    else
+      error "Node.js-installasjon feilet"
+    fi
   else
     warn "Node.js/npm må installeres manuelt på dette systemet."
   fi
 else
-  success "Node.js og npm er installert"
+  success "Node.js $(node -v) og npm $(npm -v) er installert"
 fi
 
 # 3. Virtuelt miljø for Python
@@ -68,12 +73,10 @@ pip install --upgrade pip setuptools wheel
 if [ -f "Python/requirements.txt" ]; then
   info "Installerer Python-avhengigheter fra Python/requirements.txt"
   pip install -r Python/requirements.txt
+else
+  warn "Fant ikke Python/requirements.txt"
 fi
-# Installer spesifikke pakker hvis ikke i requirements
-PY_PKGS=(flask pyserial opencv-python numpy pillow)
-for p in "${PY_PKGS[@]}"; do
-  python3 -c "import ${p%%-*}" >/dev/null 2>&1 || pip install "$p"
-done
+
 success "Python-avhengigheter installert"
 
 # 5. Kamera-konfigurasjon
@@ -91,35 +94,28 @@ else
   warn "Fant ikke $CONFIG_FILE — hopper over kamera-konfig"
 fi
 
-# 6. Frontend
-if [ ! -d "frontend" ] || [ ! -f "frontend/package.json" ]; then
-  info "Oppretter React frontend med create-react-app..."
-  command -v npx >/dev/null 2>&1 || run sudo npm install -g npx
-  npx --yes create-react-app frontend
-  cd frontend
-  npm install axios --save
-  cd ..
-fi
-
-# Build/install frontend deps
-if [ -d "frontend" ]; then
-  info "Installerer frontend-avhengigheter og bygger..."
-  cd frontend
+# 6. Frontend-avhengigheter (Web/)
+if [ -d "Web" ] && [ -f "Web/package.json" ]; then
+  info "Installerer frontend-avhengigheter fra Web/..."
+  cd Web
   if [ -f package-lock.json ]; then
     npm ci
   else
     npm install
   fi
-  npm run build || warn "npm run build feilet eller ikke definert; prøver å fortsette"
+  info "Bygger frontend..."
+  npm run build || warn "npm run build feilet; prøver å fortsette"
   cd ..
   success "Frontend ferdig"
+else
+  warn "Fant ikke Web/package.json — hopper over frontend-installasjon"
 fi
 
 # 7. Enhets-sjekk
 if ls /dev/tty* 2>/dev/null | grep -E "(ACM|USB)" >/dev/null 2>&1; then
   success "Arduino-porter funnet"
 else
-  warn "Ingen Arduino-porter funnet"
+  warn "Ingen Arduino-porter funnet — Arduino er valgfritt"
 fi
 
 if ls /dev/video* 2>/dev/null >/dev/null 2>&1; then
@@ -131,21 +127,42 @@ fi
 # 8. Start backend
 BACKEND_PY="Python/web_server.py"
 if [ -f "$BACKEND_PY" ]; then
-  info "Starter Python-backend ($BACKEND_PY) med nohup (skriv PID til backend.pid)..."
+  info "Starter Python-backend ($BACKEND_PY)..."
   nohup python3 "$BACKEND_PY" > backend.log 2>&1 &
-  echo $! > backend.pid
-  success "Backend startet (PID $(cat backend.pid), log: backend.log)"
+  BACKEND_PID=$!
+  echo "$BACKEND_PID" > backend.pid
+  sleep 2
+  if kill -0 "$BACKEND_PID" 2>/dev/null; then
+    success "Backend startet (PID $BACKEND_PID, log: backend.log)"
+  else
+    error "Backend kunne ikke startes — se backend.log"
+  fi
 else
   warn "Fant ikke $BACKEND_PY — hopper over å starte backend"
 fi
 
-# 9. Start frontend preview
-if [ -d "frontend" ]; then
-  info "Starter frontend preview (npm run preview) i bakgrunnen..."
-  (cd frontend && npm run preview > ../frontend_preview.log 2>&1 &) || warn "Kunne ikke starte frontend preview"
-  success "Forsøkt å starte frontend preview (log: frontend_preview.log)"
+# 9. Start frontend (Vite dev server)
+if [ -d "Web" ] && [ -f "Web/package.json" ]; then
+  info "Starter frontend (npm run dev) i bakgrunnen..."
+  cd Web
+  nohup npm run dev > ../frontend.log 2>&1 &
+  FRONTEND_PID=$!
+  cd ..
+  echo "$FRONTEND_PID" > frontend.pid
+  sleep 3
+  success "Frontend startet (PID $FRONTEND_PID, log: frontend.log)"
+  info "Frontend tilgjengelig på: http://localhost:5173"
+else
+  warn "Fant ikke Web/ — hopper over å starte frontend"
 fi
 
 echo "=============================================="
-success "Oppsett fullført"
+success "Oppsett fullført!"
 echo "=============================================="
+echo ""
+echo "Backend API: http://localhost:5000"
+echo "Frontend:    http://localhost:5173"
+echo ""
+echo "Stopp backend:  kill \$(cat backend.pid)"
+echo "Stopp frontend: kill \$(cat frontend.pid)"
+echo ""
