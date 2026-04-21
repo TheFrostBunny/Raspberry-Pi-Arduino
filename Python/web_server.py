@@ -12,17 +12,21 @@ def post_action():
     action = request.form.get('action')
     body = {k: v for k, v in request.form.items() if k != 'action'}
     result = None
-    if action == 'take_photo':
+    # Støtt både gamle og nye kommando-navn fra frontend
+    if action in ['take_photo', 'photo']:
         result = core_logic.take_photo()
-    elif action == 'led_on':
+    elif action in ['led_on', 'on']:
         result = core_logic.send_arduino_command('on')
-    elif action == 'led_off':
+    elif action in ['led_off', 'off']:
         result = core_logic.send_arduino_command('off')
-    elif action == 'camera_on':
+    elif action in ['camera_on', 'cameraon']:
         result = core_logic.init_camera()
-    elif action == 'camera_off':
+    elif action in ['camera_off', 'cameraoff']:
         core_logic.camera_active = False
         result = 'Camera deactivated'
+    elif action in ['ar_photo']:
+        # Hvis du har en AR-funksjon, kall den her
+        result = 'AR photo not implemented'
     else:
         result = f'Unknown action: {action}'
     return jsonify({'result': result})
