@@ -19,6 +19,14 @@ def post_action():
         result = core_logic.send_arduino_command('on')
     elif action in ['led_off', 'off']:
         result = core_logic.send_arduino_command('off')
+    elif action in ['blink']:
+        result = core_logic.send_arduino_command('blink')
+    elif action in ['blink_fast']:
+        result = core_logic.send_arduino_command('blink_fast')
+    elif action in ['blink_slow']:
+        result = core_logic.send_arduino_command('blink_slow')
+    elif action in ['blink_sos']:
+        result = core_logic.send_arduino_command('blink_sos')
     elif action in ['camera_on', 'cameraon']:
         result = core_logic.init_camera()
     elif action in ['camera_off', 'cameraoff']:
