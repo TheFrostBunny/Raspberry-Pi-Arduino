@@ -1,8 +1,10 @@
 # Python Requirements for Raspberry Pi Arduino Control Project
 # Install with: pip install -r requirements.txt
 
+
 # Web Framework
 Flask>=2.0.0
+flask-cors>=4.0.0
 
 # Arduino Serial Communication
 pyserial>=3.5

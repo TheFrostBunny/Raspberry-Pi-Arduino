@@ -1,9 +1,11 @@
 
 from flask import Flask, request, jsonify, send_from_directory, Response
+from flask_cors import CORS
 import os
 import core_logic
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=['POST'])
 def post_action():
