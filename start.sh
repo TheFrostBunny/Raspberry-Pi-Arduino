@@ -98,18 +98,13 @@ fi
 if [ -d "Web" ] && [ -f "Web/package.json" ]; then
   info "Installerer frontend-avhengigheter fra Web/..."
   cd Web
-  if [ -f package-lock.json ]; then
-    npm ci
-  else
-    npm install
-  fi
+  npm install
   info "Bygger frontend..."
   npm run build || warn "npm run build feilet; prøver å fortsette"
   cd ..
   success "Frontend ferdig"
 else
   warn "Fant ikke Web/package.json — hopper over frontend-installasjon"
-fi
 
 # 7. Enhets-sjekk
 if ls /dev/tty* 2>/dev/null | grep -E "(ACM|USB)" >/dev/null 2>&1; then
