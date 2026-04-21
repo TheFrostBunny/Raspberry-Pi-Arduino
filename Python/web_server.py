@@ -33,8 +33,21 @@ def post_action():
         core_logic.camera_active = False
         result = 'Camera deactivated'
     elif action in ['ar_photo']:
-        # Hvis du har en AR-funksjon, kall den her
-        result = 'AR photo not implemented'
+        # Kall AR-funksjonen med parametre fra frontend
+        filter_type = body.get('filter', 'none')
+        custom_text = body.get('custom_text', None)
+        frame_style = body.get('frame_style', 'none')
+        ar_face_effect = body.get('ar_face_effect', 'none')
+        show_timestamp = body.get('show_timestamp', '') == 'on'
+        trigger_led = body.get('trigger_led', '') == 'on'
+        result = core_logic.take_ar_photo(
+            filter_type=filter_type,
+            custom_text=custom_text,
+            frame_style=frame_style,
+            ar_face_effect=ar_face_effect,
+            show_timestamp=show_timestamp,
+            trigger_led=trigger_led
+        )
     else:
         result = f'Unknown action: {action}'
     return jsonify({'result': result})
@@ -42,14 +55,17 @@ def post_action():
 @app.route('/status', methods=['GET'])
 def status():
     latest_photo = core_logic.get_latest_photo()
+    latest_ar_photo = core_logic.get_latest_ar_photo() if hasattr(core_logic, 'get_latest_ar_photo') else None
+    ar_photos_count = len(core_logic.get_ar_photo_list()) if hasattr(core_logic, 'get_ar_photo_list') else 0
     return jsonify({
         'uptime': core_logic.get_uptime(),
         'photos_taken': core_logic.photos_taken if hasattr(core_logic, 'photos_taken') else 0,
         'commands_sent': core_logic.commands_sent if hasattr(core_logic, 'commands_sent') else 0,
         'led_status': core_logic.led_status if hasattr(core_logic, 'led_status') else False,
         'camera_active': core_logic.camera_active if hasattr(core_logic, 'camera_active') else False,
-        'ar_photos_count': 0,
-        'latest_ar_photo': latest_photo
+        'ar_photos_count': ar_photos_count,
+        'latest_ar_photo': latest_ar_photo,
+        'latest_photo': latest_photo
     })
 
 @app.route('/photo/<filename>')
