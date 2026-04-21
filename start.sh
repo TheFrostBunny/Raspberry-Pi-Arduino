@@ -79,20 +79,7 @@ fi
 
 success "Python-avhengigheter installert"
 
-# 5. Kamera-konfigurasjon
-CONFIG_FILE="/boot/config.txt"
-[ ! -f "$CONFIG_FILE" ] && CONFIG_FILE="/boot/firmware/config.txt"
 
-if [ -f "$CONFIG_FILE" ]; then
-  info "Sikkerhetskopierer $CONFIG_FILE"
-  sudo cp "$CONFIG_FILE" "${CONFIG_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
-  sudo bash -c "grep -q '^start_x=1$' '$CONFIG_FILE' || echo 'start_x=1' >> '$CONFIG_FILE'"
-  sudo bash -c "grep -q '^gpu_mem=' '$CONFIG_FILE' || echo 'gpu_mem=128' >> '$CONFIG_FILE'"
-  sudo bash -c "grep -q '^camera_auto_detect=' '$CONFIG_FILE' || echo 'camera_auto_detect=1' >> '$CONFIG_FILE'"
-  success "Kamera-konfigurasjon oppdatert i $CONFIG_FILE"
-else
-  warn "Fant ikke $CONFIG_FILE — hopper over kamera-konfig"
-fi
 
 # 6. Frontend-avhengigheter (Web/)
 if [ -d "Web" ] && [ -f "Web/package.json" ]; then
