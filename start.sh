@@ -81,8 +81,6 @@ fi
 
 success "Python-avhengigheter installert"
 
-
-
 # 6. Frontend-avhengigheter (Web/)
 if [ -d "Web" ] && [ -f "Web/package.json" ]; then
   info "Installerer frontend-avhengigheter fra Web/..."
@@ -94,6 +92,8 @@ if [ -d "Web" ] && [ -f "Web/package.json" ]; then
   success "Frontend ferdig"
 else
   warn "Fant ikke Web/package.json — hopper over frontend-installasjon"
+
+fi
 
 # 7. Enhets-sjekk
 if ls /dev/tty* 2>/dev/null | grep -E "(ACM|USB)" >/dev/null 2>&1; then
