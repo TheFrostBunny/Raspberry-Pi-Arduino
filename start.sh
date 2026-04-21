@@ -141,7 +141,7 @@ else
 fi
 
 echo "=============================================="
-success "Oppsett fullført!"
+printf "%b[OK]%b Oppsett fullført!\n" "$GREEN" "$NC"
 echo "=============================================="
 echo ""
 echo "Backend API: http://localhost:5000"
@@ -150,3 +150,6 @@ echo ""
 echo "Stopp backend:  kill \$(cat backend.pid)"
 echo "Stopp frontend: kill \$(cat frontend.pid)"
 echo ""
+
+# Hold scriptet kjørende til bruker stopper det
+while true; do sleep 60; done
