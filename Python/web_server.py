@@ -33,21 +33,8 @@ def post_action():
         core_logic.camera_active = False
         result = 'Camera deactivated'
     elif action in ['ar_photo']:
-        # Hent parametere fra body og kall ar_photo
-        filter = body.get('filter', 'none')
-        ar_face_effect = body.get('ar_face_effect', 'none')
-        frame_style = body.get('frame_style', 'none')
-        custom_text = body.get('custom_text', '')
-        show_timestamp = body.get('show_timestamp', '') == 'on'
-        trigger_led = body.get('trigger_led', '') == 'on'
-        result = core_logic.ar_photo(
-            filter=filter,
-            ar_face_effect=ar_face_effect,
-            frame_style=frame_style,
-            custom_text=custom_text,
-            show_timestamp=show_timestamp,
-            trigger_led=trigger_led
-        )
+        # Hvis du har en AR-funksjon, kall den her
+        result = 'AR photo not implemented'
     else:
         result = f'Unknown action: {action}'
     return jsonify({'result': result})
