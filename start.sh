@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -u
 IFS=$'\n\t'
 
 # Colors
@@ -72,7 +72,9 @@ pip install --upgrade pip setuptools wheel
 # 4. Python-avhengigheter
 if [ -f "Python/requirements.txt" ]; then
   info "Installerer Python-avhengigheter fra Python/requirements.txt"
-  pip install -r Python/requirements.txt
+  if ! pip install -r Python/requirements.txt; then
+    warn "pip install feilet, fortsetter likevel"
+  fi
 else
   warn "Fant ikke Python/requirements.txt"
 fi
