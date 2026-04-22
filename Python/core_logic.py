@@ -368,26 +368,31 @@ def take_ar_photo(filter_type='none', custom_text=None, frame_style='none',
         send_arduino_command("blink")
         time.sleep(0.5)
     try:
-        # Initialize camera
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            for i in range(1, 4):
-                cap = cv2.VideoCapture(i)
-                if cap.isOpened():
-                    print(f"📹 Fant webcam på indeks {i}")
-                    break
-            else:
-                return {"status": "error", "message": "❌ Ingen webcam funnet"}
-        # Set camera properties
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        # Capture multiple frames to let camera adjust
-        for i in range(10):
+        global camera, camera_active, camera_lock
+        use_global_camera = camera_active and camera is not None
+        if use_global_camera:
+            with camera_lock:
+                for i in range(10):
+                    ret, frame = camera.read()
+                    time.sleep(0.1)
+                ret, frame = camera.read()
+        else:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                for i in range(1, 4):
+                    cap = cv2.VideoCapture(i)
+                    if cap.isOpened():
+                        print(f"📹 Fant webcam på indeks {i}")
+                        break
+                else:
+                    return {"status": "error", "message": "❌ Ingen webcam funnet"}
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            for i in range(10):
+                ret, frame = cap.read()
+                time.sleep(0.1)
             ret, frame = cap.read()
-            time.sleep(0.1)
-        # Capture the final frame
-        ret, frame = cap.read()
-        cap.release()
+            cap.release()
         if not ret:
             return {"status": "error", "message": "❌ Kunne ikke ta bilde"}
         processed_frame = frame.copy()
