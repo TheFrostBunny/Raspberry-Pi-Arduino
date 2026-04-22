@@ -83,30 +83,39 @@ def take_photo():
         send_arduino_command("on")
         time.sleep(1)
     try:
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            for i in range(1, 4):
-                cap = cv2.VideoCapture(i)
-                if cap.isOpened():
-                    print(f"Fant webcam på indeks {i}")
-                    break
-            else:
-                return "❌ Ingen webcam funnet"
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-        for i in range(10):
+        global camera, camera_active, camera_lock
+        use_global_camera = camera_active and camera is not None
+        if use_global_camera:
+            with camera_lock:
+                # Bruk kamera fra livestream
+                for i in range(10):
+                    ret, frame = camera.read()
+                    time.sleep(0.1)
+                ret, frame = camera.read()
+        else:
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                for i in range(1, 4):
+                    cap = cv2.VideoCapture(i)
+                    if cap.isOpened():
+                        print(f"Fant webcam på indeks {i}")
+                        break
+                else:
+                    return "❌ Ingen webcam funnet"
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            for i in range(10):
+                ret, frame = cap.read()
+                time.sleep(0.1)
             ret, frame = cap.read()
-            time.sleep(0.1)
-        ret, frame = cap.read()
+            cap.release()
         if ret:
             timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
             filename = f"photo_{timestamp}.jpg"
             cv2.imwrite(filename, frame)
             print(f"Bilde lagret som {filename}")
-            cap.release()
             return f"📸 Bilde lagret: {filename}"
         else:
-            cap.release()
             return "❌ Kunne ikke ta bilde"
     except Exception as e:
         print(f"Webcam-feil: {e}")
@@ -115,6 +124,15 @@ def take_photo():
         if config.get("enable_led_on_photo", True):
             time.sleep(0.5)
             send_arduino_command("off")
+# Funksjon for å stoppe kameraet (frigjør ressursen)
+def stop_camera():
+    global camera, camera_active
+    with camera_lock:
+        if camera is not None:
+            camera.release()
+            camera = None
+            camera_active = False
+            print("Kamera stoppet og frigjort")
 
 def get_latest_photo():
     photo_files = glob.glob("photo_*.jpg")
